@@ -1,0 +1,12 @@
+.ans{
+    align-self:flex-start;
+    border-radius: 10px;
+    height: 30px;
+    color: #0D2646;
+    background-color: lightgrey;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    min-width: 60px;
+    justify-content: center;
+}

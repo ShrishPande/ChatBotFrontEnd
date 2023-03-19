@@ -1,0 +1,12 @@
+.ques{
+    align-self:flex-end;
+    border-radius: 10px;
+    height: 30px;
+    color: #0D2646;
+    background-color: #FECBCE;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    min-width: 60px;
+    justify-content: center;
+}
