@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./Home.css";
 import { UilMicrophone } from "@iconscout/react-unicons";
 import { UilMicrophoneSlash } from "@iconscout/react-unicons";
@@ -9,7 +9,7 @@ import TranscriptChats from "../../chats/TranscriptChats";
 import { ResponseChat } from "../../chats/ResponseChat";
 import ReactSwitch from "react-switch";
 import { useSpeechSynthesis } from "react-speech-kit";
-import * as API from '../../Request/Request.js'
+import * as API from "../../Request/Request.js";
 
 function Home() {
   const {
@@ -22,88 +22,90 @@ function Home() {
     console.log(false);
   }
 
+  const chatboxRef = useRef(null);
+
   const [micIn, setMicIn] = useState(false);
   const [response, setResponse] = useState("");
   const [request, setRequest] = useState(transcript);
-
   const [value, setValue] = useState([]);
+  const [submitted, setSubmitted] = useState(0);
+  const { speak,cancel } = useSpeechSynthesis();
+  const [checked, setChecked] = useState(false);
 
-  const [submitted,setSubmitted]=useState(0);
-
-  const { speak } = useSpeechSynthesis();
   const HandleMicrophoneInput = () => {
     setMicIn(true);
     setChecked(true);
     SpeechRecognition.startListening({ continuous: true });
-    setRequest(transcript);
+    document.getElementById("input").focus();
     setResponse("");
   };
 
   const handleChange = (e) => {
     setRequest(e.target.value);
-    if (e.key !== 'Enter') setResponse("");
+    if (e.key !== "Enter") setResponse("");
   };
 
-  const handleStop = () =>{
+  const handleStop = () => {
     stopListening();
-  }
+  };
   const stopListening = () => {
     setMicIn(false);
     SpeechRecognition.stopListening();
-    setSubmitted((prev)=>prev=prev+1)
-    console.log(request);
-    // if (request !== "") {
-    //   setValue([...value, { question: request, answer: response }]);
-    // }
-    if (checked) {
-      speak({ text: response });
-    }
+    setSubmitted((prev) => (prev = prev + 1));
   };
 
-  useEffect(()=>{
-    
-    setRequest("");
-  },[value]);
-  useEffect(() => {
-    localStorage.setItem("value", JSON.stringify(value));
-  }, [value]);
-  
-  const generateResponse = async(request) => {
-    try{
-      const jsonRequest=JSON.stringify(request)
-      console.log(jsonRequest)
-      const res = await API.requestAnswer(jsonRequest)
-      console.log(res.data.question)
-      setResponse(res.data.question);
-    }catch(error){
+  const generateResponse = async (request) => {
+    try {
+      const res = await API.requestAnswer(request);
+      setResponse(res.data);
+    } catch (error) {
       console.error(error);
     }
-    
   };
-  useEffect(() => {
-    generateResponse(request);
-  }, [submitted]);
-  
-  useEffect(() => {
-    setRequest(transcript);
-  }, [transcript]);
-
-  useEffect(()=>{
-    if(response!=="")
-      setValue([...value,{question:request,answer:response}])
-  },[response])
-
-  const [checked, setChecked] = useState(false);
 
   const handleChange2 = (val) => {
     setChecked(val);
   };
 
+  useEffect(() => {
+    setRequest("");
+    if (checked) {
+      speak({ text: response });
+    }
+    localStorage.setItem("value", JSON.stringify(value));
+  }, [value]);
+
+  useEffect(() => {
+    resetTranscript();
+    if(micIn){
+      cancel();
+    }
+  }, [micIn]);
+
+  useEffect(() => {
+    if(request!=""){
+      generateResponse(request);
+    }
+  }, [submitted]);
+
+  useEffect(() => {
+    if (transcript !== "") setRequest(transcript);
+  }, [transcript]);
+
+  useEffect(() => {
+    if (response !== "")
+      setValue([...value, { question: request, answer: response }]);
+  }, [response]);
+
+
+  useEffect(() => {
+    chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
+  }, [value]);
 
   return (
     <div className="home">
       <div className="title">
-        Tech Elites
+        Shrish Pandey
         <div className="voiceToggle">
           <ReactSwitch
             checked={checked}
@@ -114,7 +116,7 @@ function Home() {
         </div>
       </div>
       <div className="content">
-        <div className="chat">
+        <div className="chat" ref={chatboxRef}>
           {value.map((value) => (
             <div>
               <TranscriptChats question={value.question} />

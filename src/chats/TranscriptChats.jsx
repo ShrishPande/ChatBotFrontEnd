@@ -4,7 +4,7 @@ import './TranscriptChats.css'
 function TranscriptChats({question}) {
   return (
     <div className='ques'>
-        <p>{question}</p>
+        {question}
     </div>
   )
 }
