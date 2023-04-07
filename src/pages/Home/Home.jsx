@@ -29,8 +29,8 @@ function Home() {
   const [request, setRequest] = useState(transcript);
   const [value, setValue] = useState([]);
   const [submitted, setSubmitted] = useState(0);
-  const { speak,cancel } = useSpeechSynthesis();
   const [checked, setChecked] = useState(false);
+  const { speak,cancel } = useSpeechSynthesis();
 
   const HandleMicrophoneInput = () => {
     setMicIn(true);
@@ -77,10 +77,8 @@ function Home() {
 
   useEffect(() => {
     resetTranscript();
-    if(micIn){
-      cancel();
-    }
-  }, [micIn]);
+    cancel();
+  }, [submitted,micIn,checked]);
 
   useEffect(() => {
     if(request!=""){
@@ -93,6 +91,7 @@ function Home() {
   }, [transcript]);
 
   useEffect(() => {
+    
     if (response !== "")
       setValue([...value, { question: request, answer: response }]);
   }, [response]);
@@ -105,7 +104,7 @@ function Home() {
   return (
     <div className="home">
       <div className="title">
-        Shrish Pandey
+        ChatBot
         <div className="voiceToggle">
           <ReactSwitch
             checked={checked}
